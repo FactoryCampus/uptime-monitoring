@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>Downtimes</title>
+</head>
+<body>
+<h1>Downtimes</h1>
+<br>
+{% for time in downtime %}
+<h3>{{ time }}</h3>
+<ul>
+{% for host in downtime[time].hosts %}
+    <li>{{ host }}</li>
+</ul>
+{% endfor %}
+<br>
+{% endfor %}
+</body>
+</html>

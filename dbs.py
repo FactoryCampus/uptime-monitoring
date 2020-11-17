@@ -35,3 +35,6 @@ class DB:
     def insert_unsuccessful_ping(self, endpointID, startedOn):
         self.conn.execute("INSERT INTO history (endpoint, startedOn) VALUES (?, ?)", (endpointID, startedOn))
         self.conn.commit()
+
+    def get_unsuccessful_connections_today(self):
+        return self.conn.execute("SELECT host, startedOn FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE responseTime IS NULL AND startedOn > ?", (datetime.date.today().strftime("%s"), )).fetchall()
