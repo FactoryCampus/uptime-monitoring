@@ -7,11 +7,11 @@ db = dbs.DB()
 
 while True:
     for host in db.get_hosts():
-        if host[2] == 'ping':
+        if host['type'] == 'ping':
             c = time.time()
-            t = ping(host[1])
+            t = ping(host['host'])
             if t is False:
-                db.insert_unsuccessful_ping(host[0], c)
+                db.insert_unsuccessful_ping(host['id'], c)
             else:
-                db.insert_successful_ping(host[0], c, t)
+                db.insert_successful_ping(host['id'], c, t)
     time.sleep(2)
