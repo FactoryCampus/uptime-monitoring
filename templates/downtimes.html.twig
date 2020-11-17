@@ -1,8 +1,6 @@
-<html>
-<head>
-    <title>Downtimes</title>
-</head>
-<body>
+{% extends 'base.html.twig' %}
+{% block title %}Downtimes{% endblock %}
+{% block content %}
 <h1>Downtimes</h1>
 <br>
 {% for time in downtime %}
@@ -14,5 +12,4 @@
 {% endfor %}
 <br>
 {% endfor %}
-</body>
-</html>
+{% endblock %}

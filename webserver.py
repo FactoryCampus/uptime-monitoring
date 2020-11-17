@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html.twig')
+    return redirect('/downtimes')
+
 
 @app.route('/downtimes')
 def downtimes():
