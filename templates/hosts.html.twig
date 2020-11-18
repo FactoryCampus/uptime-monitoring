@@ -4,6 +4,7 @@
     {% for host in hosts %}
     <form method="post">
         <input hidden name="id" value="{{ host.id }}">
+        <input name="alias" value="{{ host.alias }}" placeholder="Alias">
         <input name="host" value="{{ host.host }}">
         <button type="submit">Save Changes.</button>
     </form><br>

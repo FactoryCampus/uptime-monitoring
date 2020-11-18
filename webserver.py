@@ -78,10 +78,13 @@ def add_edit_hosts():
     if ('authenticated' not in session) or (not session['authenticated'] is True):
         return redirect('/login', 403)
     db = dbs.DB()
-    if 'host' not in request.form:
+    if 'host' not in request.form and 'alias' not in request.form:
         return redirect('/endpoints', 400)
+    alias = None
+    if request.form['alias'] != '' and request.form['alias'] != 'None':
+        alias = request.form['alias']
     if 'id' in request.form:
-        db.change_endpoint_host(request.form['id'], request.form['host'])
+        db.change_endpoint_host(request.form['id'], request.form['host'], alias)
     return redirect('/endpoints')
 
 

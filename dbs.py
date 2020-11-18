@@ -18,18 +18,23 @@ class DB:
     def do_setup(self) -> None:
         self.conn.execute("CREATE TABLE IF NOT EXISTS 'db_migrations' ('number' INTEGER PRIMARY KEY AUTOINCREMENT)")
         self.conn.commit()
-        if self.conn.execute("SELECT COUNT(*) FROM db_migrations").fetchall()[0][0] == 0:
+        version = self.conn.execute("SELECT COUNT(*) FROM db_migrations").fetchall()[0][0]
+        if version == 0:
             print("Upgrade version to code 0")
             self.conn.execute("CREATE TABLE 'endpoints' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 'host' TEXT NOT NULL, 'type' TEXT NOT NULL DEFAULT 'ping')")
             self.conn.execute("CREATE TABLE 'history' ('endpoint' INTEGER NOT NULL, 'startedOn' INTEGER NOT NULL, 'responseTime' INTEGER )")
             self.conn.execute("INSERT INTO db_migrations ('number') VALUES (0)")
+        if version == 1:
+            print("Upgrade version to code 1")
+            self.conn.execute("ALTER TABLE endpoints ADD alias TEXT")
+            self.conn.execute("INSERT INTO db_migrations ('number') VALUES (1)")
         self.conn.commit()
 
     def get_hosts(self):
         return self.conn.execute("SELECT * FROM endpoints").fetchall()
 
-    def change_endpoint_host(self, id, host):
-        self.conn.execute("UPDATE endpoints SET host=? WHERE id=?", (host, id))
+    def change_endpoint_host(self, id, host, alias):
+        self.conn.execute("UPDATE endpoints SET host=?, alias=? WHERE id=?", (host, alias, id))
         self.conn.commit()
 
     def insert_successful_ping(self, endpointID, startedOn, responseTime):
@@ -41,4 +46,4 @@ class DB:
         self.conn.commit()
 
     def get_unsuccessful_connections_today(self):
-        return self.conn.execute("SELECT host, startedOn FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE responseTime IS NULL AND startedOn > ?", (datetime.date.today().strftime("%s"), )).fetchall()
+        return self.conn.execute("SELECT ifnull(alias, host) as host, startedOn FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE responseTime IS NULL AND startedOn > ?", (datetime.date.today().strftime("%s"), )).fetchall()
