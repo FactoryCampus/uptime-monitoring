@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}Downtimes{% endblock %}
+{% block content %}
+    {% for host in hosts %}
+    <form method="post">
+        <input hidden name="id" value="{{ host.id }}">
+        <input name="host" value="{{ host.host }}">
+        <button type="submit">Save Changes.</button>
+    </form><br>
+    {% endfor %}
+{% endblock %}

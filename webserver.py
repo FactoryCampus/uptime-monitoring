@@ -43,7 +43,7 @@ def logout():
 
 @app.route('/downtimes')
 def downtimes():
-    if not session['authenticated'] is True:
+    if ('authenticated' not in session) or (not session['authenticated'] is True):
         return redirect('/login', 403)
     db = dbs.DB()
     data = db.get_unsuccessful_connections_today()
@@ -62,6 +62,27 @@ def downtimes_api():
         return redirect('/login', 403)
     db = dbs.DB()
     return json.dumps(db.get_unsuccessful_connections_today())
+
+
+@app.route('/endpoints', methods=['GET'])
+def hosts():
+    if ('authenticated' not in session) or (not session['authenticated'] is True):
+        return redirect('/login', 403)
+    db = dbs.DB()
+    hosts = db.get_hosts()
+    return render_template('hosts.html.twig', hosts=hosts)
+
+
+@app.route('/endpoints', methods=['POST'])
+def add_edit_hosts():
+    if ('authenticated' not in session) or (not session['authenticated'] is True):
+        return redirect('/login', 403)
+    db = dbs.DB()
+    if 'host' not in request.form:
+        return redirect('/endpoints', 400)
+    if 'id' in request.form:
+        db.change_endpoint_host(request.form['id'], request.form['host'])
+    return redirect('/endpoints')
 
 
 if __name__ == '__main__':

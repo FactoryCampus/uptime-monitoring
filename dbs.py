@@ -28,6 +28,10 @@ class DB:
     def get_hosts(self):
         return self.conn.execute("SELECT * FROM endpoints").fetchall()
 
+    def change_endpoint_host(self, id, host):
+        self.conn.execute("UPDATE endpoints SET host=? WHERE id=?", (host, id))
+        self.conn.commit()
+
     def insert_successful_ping(self, endpointID, startedOn, responseTime):
         self.conn.execute("INSERT INTO history (endpoint, startedOn, responseTime) VALUES (?, ?, ?)", (endpointID, startedOn, responseTime))
         self.conn.commit()
