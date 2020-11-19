@@ -28,13 +28,17 @@ class DB:
             print("Upgrade version to code 1")
             self.conn.execute("ALTER TABLE endpoints ADD alias TEXT")
             self.conn.execute("INSERT INTO db_migrations ('number') VALUES (1)")
+        if version == 2:
+            print("Upgrade version to code 2")
+            self.conn.execute("ALTER TABLE endpoints ADD active DEFAULT TRUE")
+            self.conn.execute("INSERT INTO db_migrations ('number') VALUES (2)")
         self.conn.commit()
 
-    def get_hosts(self):
-        return self.conn.execute("SELECT * FROM endpoints").fetchall()
+    def get_hosts(self, only_active=False):
+        return self.conn.execute("SELECT * FROM endpoints" + (' WHERE active' if only_active else '')).fetchall()
 
-    def change_endpoint_host(self, id, host, alias):
-        self.conn.execute("UPDATE endpoints SET host=?, alias=? WHERE id=?", (host, alias, id))
+    def change_endpoint_host(self, id, host, alias, active):
+        self.conn.execute("UPDATE endpoints SET host=?, alias=?, active=? WHERE id=?", (host, alias, active, id))
         self.conn.commit()
 
     def insert_successful_ping(self, endpointID, startedOn, responseTime):

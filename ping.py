@@ -6,7 +6,7 @@ import time
 db = dbs.DB()
 
 while True:
-    for host in db.get_hosts():
+    for host in db.get_hosts(only_active=True):
         if host['type'] == 'ping':
             c = time.time()
             t = ping(host['host'])
