@@ -41,6 +41,10 @@ class DB:
         self.conn.execute("UPDATE endpoints SET host=?, alias=?, active=? WHERE id=?", (host, alias, active, id))
         self.conn.commit()
 
+    def add_endpoint_host(self, host, alias):
+        self.conn.execute("INSERT INTO endpoints (host, alias) VALUES (?, ?)", (host, alias))
+        self.conn.commit()
+
     def insert_successful_ping(self, endpointID, startedOn, responseTime):
         self.conn.execute("INSERT INTO history (endpoint, startedOn, responseTime) VALUES (?, ?, ?)", (endpointID, startedOn, responseTime))
         self.conn.commit()

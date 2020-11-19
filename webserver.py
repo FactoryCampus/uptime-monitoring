@@ -75,16 +75,24 @@ def hosts():
 
 @app.route('/endpoints', methods=['POST'])
 def add_edit_hosts():
+    # check logged in
     if ('authenticated' not in session) or (not session['authenticated'] is True):
         return redirect('/login', 403)
     db = dbs.DB()
+    # check if all is there
     if 'host' not in request.form or 'alias' not in request.form:
         return redirect('/endpoints', 400)
+    # Set alias
     alias = None
     if request.form['alias'] != '' and request.form['alias'] != 'None':
         alias = request.form['alias']
+    # update
     if 'id' in request.form:
         db.change_endpoint_host(request.form['id'], request.form['host'], alias, 'active' in request.form)
+    # create
+    else:
+        db.add_endpoint_host(request.form['host'], alias)
+    # redirect
     return redirect('/endpoints')
 
 
