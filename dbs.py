@@ -1,5 +1,6 @@
 import sqlite3
 import datetime
+import time
 
 
 def dict_factory(cursor, row):
@@ -36,6 +37,10 @@ class DB:
             print("Upgrade version to code 3")
             self.conn.execute("ALTER TABLE endpoints ADD interval integer NOT NULL DEFAULT 60")
             self.conn.execute("INSERT INTO db_migrations ('number') VALUES (3)")
+        if version <= 4:
+            print("Upgrade version to code 4")
+            self.conn.execute("CREATE TABLE 'notifications' ('endpoint' INTEGER NOT NULL, 'sentOn' INTEGER NOT NULL, 'active' BOOLEAN DEFAULT TRUE)")
+            self.conn.execute("INSERT INTO db_migrations ('number') VALUES (4)")
         self.conn.commit()
 
     def get_hosts(self, only_active=False):
@@ -55,6 +60,19 @@ class DB:
 
     def insert_unsuccessful_ping(self, endpointID, startedOn):
         self.conn.execute("INSERT INTO history (endpoint, startedOn) VALUES (?, ?)", (endpointID, startedOn))
+        self.conn.commit()
+
+    def endpoint_add_active_notification(self, endpointID):
+        self.conn.execute('INSERT INTO notifications (endpoint, sentOn) VALUES (?, ?)', (endpointID, time.time()))
+        self.conn.commit()
+
+    def endpoint_has_active_notification(self, endpointID):
+        return len(
+            self.conn.execute('SELECT * FROM notifications WHERE endpoint=? AND active=TRUE', (endpointID,)).fetchall()
+        ) > 0
+
+    def endpoint_disable_active_notifications(self, endpointID):
+        self.conn.execute('UPDATE notifications SET active=FALSE WHERE endpoint=? AND active=TRUE', (endpointID, ))
         self.conn.commit()
 
     def get_unsuccessful_connections_today(self):
