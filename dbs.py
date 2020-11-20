@@ -24,21 +24,25 @@ class DB:
             self.conn.execute("CREATE TABLE 'endpoints' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 'host' TEXT NOT NULL, 'type' TEXT NOT NULL DEFAULT 'ping')")
             self.conn.execute("CREATE TABLE 'history' ('endpoint' INTEGER NOT NULL, 'startedOn' INTEGER NOT NULL, 'responseTime' INTEGER )")
             self.conn.execute("INSERT INTO db_migrations ('number') VALUES (0)")
-        if version == 1:
+        if version <= 1:
             print("Upgrade version to code 1")
             self.conn.execute("ALTER TABLE endpoints ADD alias TEXT")
             self.conn.execute("INSERT INTO db_migrations ('number') VALUES (1)")
-        if version == 2:
+        if version <= 2:
             print("Upgrade version to code 2")
             self.conn.execute("ALTER TABLE endpoints ADD active DEFAULT TRUE")
             self.conn.execute("INSERT INTO db_migrations ('number') VALUES (2)")
+        if version <= 3:
+            print("Upgrade version to code 3")
+            self.conn.execute("ALTER TABLE endpoints ADD interval integer NOT NULL DEFAULT 60")
+            self.conn.execute("INSERT INTO db_migrations ('number') VALUES (3)")
         self.conn.commit()
 
     def get_hosts(self, only_active=False):
         return self.conn.execute("SELECT * FROM endpoints" + (' WHERE active' if only_active else '')).fetchall()
 
-    def change_endpoint_host(self, id, host, alias, active):
-        self.conn.execute("UPDATE endpoints SET host=?, alias=?, active=? WHERE id=?", (host, alias, active, id))
+    def update_endpoint(self, id, host, alias, interval, active):
+        self.conn.execute("UPDATE endpoints SET host=?, alias=?, active=?, interval=? WHERE id=?", (host, alias, active, interval, id))
         self.conn.commit()
 
     def add_endpoint_host(self, host, alias):

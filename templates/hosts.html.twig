@@ -7,6 +7,7 @@
         <input name="active" value="true" {% if host.active %}checked{% endif %} type="checkbox">
         <input name="alias" value="{{ host.alias }}" placeholder="Alias">
         <input name="host" value="{{ host.host }}">
+        <input name="interval" type="number" value="{{ host.interval }}">
         <button type="submit">Save Changes.</button>
     </form><br>
     {% endfor %}

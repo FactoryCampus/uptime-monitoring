@@ -80,7 +80,7 @@ def add_edit_hosts():
         return redirect('/login', 403)
     db = dbs.DB()
     # check if all is there
-    if 'host' not in request.form or 'alias' not in request.form:
+    if 'host' not in request.form or 'alias' not in request.form or ('id' in request.form and 'interval' not in request.form):
         return redirect('/endpoints', 400)
     # Set alias
     alias = None
@@ -88,7 +88,7 @@ def add_edit_hosts():
         alias = request.form['alias']
     # update
     if 'id' in request.form:
-        db.change_endpoint_host(request.form['id'], request.form['host'], alias, 'active' in request.form)
+        db.update_endpoint(request.form['id'], request.form['host'], alias, request.form['interval'], 'active' in request.form)
     # create
     else:
         db.add_endpoint_host(request.form['host'], alias)
