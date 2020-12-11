@@ -15,6 +15,10 @@
     <form method="post">
         <input name="alias" placeholder="Alias">
         <input name="host" placeholder="host.example.com">
+        <select name="type">
+            <option value="ping">Ping to server</option>
+            <option value="web">Send web request to URL (Down: status!=2xx)</option>
+        </select>
         <button type="submit">Add</button>
     </form><br>
 {% endblock %}

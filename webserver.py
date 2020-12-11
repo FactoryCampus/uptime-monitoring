@@ -91,7 +91,9 @@ def add_edit_hosts():
         db.update_endpoint(request.form['id'], request.form['host'], alias, request.form['interval'], 'active' in request.form)
     # create
     else:
-        db.add_endpoint_host(request.form['host'], alias)
+        if 'type' not in request.form or (request.form['type'] != 'web' and request.form['type'] != 'ping'):
+            return redirect('/endpoints', 400)
+        db.add_endpoint_host(request.form['host'], alias, request.form['type'])
     # redirect
     return redirect('/endpoints')
 
