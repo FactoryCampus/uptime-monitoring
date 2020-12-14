@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Uptimes {{ endpoint }}{% endblock %}
+{% block content %}
+<h3>Downtime 24h: ~{{ downTime24[0]['downTime'] }}s</h3>
+<h3>Downtime 7d: ~{{ downTime7days[0]['downTime'] }}s</h3>
+<h3>Downtime 31d: ~{{ downTimeMonth[0]['downTime'] }}s</h3>
+<h2>Todays downtime:</h2>
+<ul>
+    {% for time in downtime %}
+        <li>{{ time.startedOn|otime }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

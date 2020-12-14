@@ -64,6 +64,20 @@ def uptimes():
     return render_template('uptimes_list.html.twig', endpoints=db.get_endpoints_with_failed_requests_data())
 
 
+@app.route('/uptimes/<endpoint>')
+def uptimes_endpoint(endpoint):
+    if ('authenticated' not in session) or (not session['authenticated'] is True):
+        return redirect('/login', 403)
+    db = dbs.DB()
+    return render_template('uptimes_entry.html.twig',
+                           id=endpoint,
+                           downTime24=db.get_count_failed_requests_time_in_the_last_x_seconds(endpoint, 60 * 60 * 24),
+                           downTime7days=db.get_count_failed_requests_time_in_the_last_x_seconds(endpoint, 60 * 60 * 24 * 7),
+                           downTimeMonth=db.get_count_failed_requests_time_in_the_last_x_seconds(endpoint, 60 * 60 * 24 * 31),
+                           downtime=db.get_unsuccessful_connections_today(endpoint=endpoint)
+                           )
+
+
 @app.route('/api/downtimes')
 def downtimes_api():
     if not session['authenticated'] is True:
@@ -105,6 +119,10 @@ def add_edit_hosts():
     # redirect
     return redirect('/endpoints')
 
+
+@app.template_filter('otime')
+def otime(s):
+    return datetime.utcfromtimestamp(int(s)).strftime('%H:%M:%S')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

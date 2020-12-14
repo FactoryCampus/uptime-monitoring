@@ -75,11 +75,14 @@ class DB:
         self.conn.execute('UPDATE notifications SET active=FALSE WHERE endpoint=? AND active=TRUE', (endpointID, ))
         self.conn.commit()
 
-    def get_unsuccessful_connections_today(self):
-        return self.conn.execute("SELECT ifnull(alias, host) as host, startedOn FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE responseTime IS NULL AND startedOn > ?", (datetime.date.today().strftime("%s"), )).fetchall()
+    def get_unsuccessful_connections_today(self, endpoint=None):
+        if endpoint is None:
+            return self.conn.execute("SELECT ifnull(alias, host) as host, startedOn FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE responseTime IS NULL AND startedOn > ?", (datetime.date.today().strftime("%s"), )).fetchall()
+        else:
+            return self.conn.execute("SELECT ifnull(alias, host) as host, startedOn FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE responseTime IS NULL AND startedOn > ? AND endpoint=?", (datetime.date.today().strftime("%s"), endpoint)).fetchall()
 
-    def get_failed_requests_in_the_last_week(self, endpointID):
-        return self.conn.execute("SELECT COUNT(*) FROM history WHERE endpoint = ? AND responseTime IS NULL", (endpointID, )).fetchall()
+    def get_count_failed_requests_time_in_the_last_x_seconds(self, endpointID, seconds):
+        return self.conn.execute("SELECT COUNT(*) * interval AS downTime FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE endpoints.id = ? AND responseTime IS NULL AND startedOn > ?", (endpointID, time.time() - seconds)).fetchall()
 
     def get_endpoints_with_failed_requests_data(self):
         return self.conn.execute("SELECT id, ifnull(alias, host) as host, SUM(case when responseTime is null and history.startedOn > ?  then 1 else 0 end) * interval AS timeUnavailable FROM endpoints  JOIN history ON endpoints.id = history.endpoint GROUP BY id", (datetime.date.today().strftime("%s"), )).fetchall()

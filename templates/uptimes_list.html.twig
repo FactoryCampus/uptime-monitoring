@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}Downtimes{% endblock %}
+{% block title %}Uptimes{% endblock %}
 {% block content %}
     <table class="uptimeList">
         <thead>
@@ -17,7 +17,7 @@
                     {{ endpoint.timeUnavailable }}s
                 </td>
                 <td>
-                    <a href="/endpoints/{{ endpoint.id }}">Details</a>
+                    <a href="/uptimes/{{ endpoint.id }}">Details</a>
                 </td>
             </tr>
         {% endfor %}
