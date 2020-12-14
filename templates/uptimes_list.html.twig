@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title %}Downtimes{% endblock %}
+{% block content %}
+    <table class="uptimeList">
+        <thead>
+        <tr>
+            <td>Endpoint Alias</td>
+            <td>Time down</td>
+        </tr>
+        </thead>
+        {% for endpoint in endpoints %}
+            <tr>
+                <td>
+                    {{ endpoint.host }}
+                </td>
+                <td>
+                    {{ endpoint.timeUnavailable }}s
+                </td>
+                <td>
+                    <a href="/endpoints/{{ endpoint.id }}">Details</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <style>
+    .uptimeList > a, td {
+        font-size: 25px;
+    }
+    </style>
+{% endblock %}

@@ -56,6 +56,14 @@ def downtimes():
     return render_template('downtimes.html.twig', downtime=template_data)
 
 
+@app.route('/uptimes')
+def uptimes():
+    if ('authenticated' not in session) or (not session['authenticated'] is True):
+        return redirect('/login', 403)
+    db = dbs.DB()
+    return render_template('uptimes_list.html.twig', endpoints=db.get_endpoints_with_failed_requests_data())
+
+
 @app.route('/api/downtimes')
 def downtimes_api():
     if not session['authenticated'] is True:

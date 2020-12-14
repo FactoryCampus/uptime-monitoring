@@ -77,3 +77,9 @@ class DB:
 
     def get_unsuccessful_connections_today(self):
         return self.conn.execute("SELECT ifnull(alias, host) as host, startedOn FROM history JOIN endpoints ON history.endpoint = endpoints.id WHERE responseTime IS NULL AND startedOn > ?", (datetime.date.today().strftime("%s"), )).fetchall()
+
+    def get_failed_requests_in_the_last_week(self, endpointID):
+        return self.conn.execute("SELECT COUNT(*) FROM history WHERE endpoint = ? AND responseTime IS NULL", (endpointID, )).fetchall()
+
+    def get_endpoints_with_failed_requests_data(self):
+        return self.conn.execute("SELECT id, ifnull(alias, host) as host, SUM(case when responseTime is null and history.startedOn > ?  then 1 else 0 end) * interval AS timeUnavailable FROM endpoints  JOIN history ON endpoints.id = history.endpoint GROUP BY id", (datetime.date.today().strftime("%s"), )).fetchall()
