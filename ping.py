@@ -38,7 +38,7 @@ while True:
                     if noresponses:
                         db.insert_unsuccessful_ping(host['id'], c)
                     else:
-                        db.insert_successful_ping(host['id'], c, responses.get(host['host']))
+                        db.insert_successful_ping(host['id'], c, list(responses.items())[0][1])
                 except OSError:
                     db.insert_unsuccessful_ping(host['id'], c)
             elif host['type'] == 'web':
