@@ -1,5 +1,5 @@
 import dbs
-from ping3 import ping
+from multiping import MultiPing
 import time
 import sqlite3
 import requests
@@ -31,11 +31,16 @@ while True:
             nextExecution[hostID] = time.time() + host['interval']
             c = time.time()
             if host['type'] == 'ping':
-                t = ping(host['host'])
-                if t is False:
+                mp = MultiPing([host['host']])
+                try:
+                    mp.send()
+                    responses, noresponses = mp.receive(2)
+                    if noresponses:
+                        db.insert_unsuccessful_ping(host['id'], c)
+                    else:
+                        db.insert_successful_ping(host['id'], c, responses.get(host['host']))
+                except OSError:
                     db.insert_unsuccessful_ping(host['id'], c)
-                else:
-                    db.insert_successful_ping(host['id'], c, t)
             elif host['type'] == 'web':
                 try:
                     req = requests.get(host['host'])
