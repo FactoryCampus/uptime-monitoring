@@ -86,3 +86,10 @@ class DB:
 
     def get_endpoints_with_failed_requests_data(self):
         return self.conn.execute("SELECT id, ifnull(alias, host) as host, SUM(case when responseTime is null and history.startedOn > ?  then 1 else 0 end) * interval AS timeUnavailable FROM endpoints  JOIN history ON endpoints.id = history.endpoint GROUP BY id", (datetime.date.today().strftime("%s"), )).fetchall()
+
+    def has_endpoint_entry_in_last_x_seconds(self, endpointID, seconds):
+        minRTime = time.time() - seconds
+        return self.conn.execute("SELECT COUNT(*) > 0 AS success FROM history WHERE endpoint=? AND startedOn >= ?", (endpointID, minRTime)).fetchone()
+
+    def get_incoming_host_with_key(self, key):
+        return self.conn.execute("SELECT * FROM endpoints WHERE type='incoming' AND host=?", (key, )).fetchone()

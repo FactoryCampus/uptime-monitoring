@@ -1,4 +1,5 @@
 import os
+import sqlite3
 
 from flask import Flask, render_template, redirect, request, session
 import json
@@ -6,6 +7,8 @@ import json
 import dbs
 import hashlib
 from datetime import datetime
+import time
+
 app = Flask(__name__)
 app.secret_key = os.getenv('UPTIME_MONITOR_SECRET')
 
@@ -113,16 +116,30 @@ def add_edit_hosts():
         db.update_endpoint(request.form['id'], request.form['host'], alias, request.form['interval'], 'active' in request.form)
     # create
     else:
-        if 'type' not in request.form or (request.form['type'] != 'web' and request.form['type'] != 'ping'):
+        if 'type' not in request.form or (request.form['type'] != 'web' and request.form['type'] != 'ping' and request.form['type'] != 'incoming'):
             return redirect('/endpoints', 400)
         db.add_endpoint_host(request.form['host'], alias, request.form['type'])
     # redirect
     return redirect('/endpoints')
 
 
+@app.route('/incoming/<key>', methods=['POST'])
+def incoming(key):
+    db = dbs.DB()
+    host = db.get_incoming_host_with_key(key)
+    if host is not None:
+        # 0 not null here! Null would mean unsuccessful, but we just do not have numbers
+        try:
+            db.insert_successful_ping(host['id'], time.time(), 0)
+        except sqlite3.OperationalError:
+            print("Error while inserting incoming")
+    return "OK"
+
+
 @app.template_filter('otime')
 def otime(s):
     return datetime.utcfromtimestamp(int(s)).strftime('%H:%M:%S')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

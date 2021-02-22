@@ -50,6 +50,9 @@ while True:
                         db.insert_unsuccessful_ping(host['id'], c)
                 except requests.exceptions.ConnectionError:
                     db.insert_unsuccessful_ping(host['id'], c)
+            elif host['type'] == 'incoming':
+                if db.has_endpoint_entry_in_last_x_seconds(host['id'], host['interval'] * 2)['success'] == 0:
+                    db.insert_unsuccessful_ping(host['id'], c)
 
     except sqlite3.OperationalError:
         print("Could not read or write because of Database locking, skip!")
