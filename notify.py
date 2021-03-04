@@ -22,7 +22,7 @@ for host in hosts:
     requiredCount = 2 if host['interval'] > 10 else 5
     isUp = db.conn.execute(
         'SELECT (count(*) - count(responseTime) > ?) AS isUp FROM (SELECT * FROM history WHERE endpoint=? ORDER BY startedOn DESC LIMIT ? * 2)',
-        (host['id'], requiredCount)) \
+        (requiredCount, host['id'], requiredCount)) \
         .fetchall()[0]['isUp']
     if isUp == 0:
         if not db.endpoint_has_active_notification(host['id']):
