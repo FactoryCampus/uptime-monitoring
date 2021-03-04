@@ -21,7 +21,7 @@ hosts = db.get_hosts(only_active=True)
 for host in hosts:
     requiredCount = 2 if host['interval'] > 10 else 5
     isDown = db.conn.execute(
-        'SELECT (count(*) - count(responseTime) > ?) AS isUp FROM (SELECT * FROM history WHERE endpoint=? ORDER BY startedOn DESC LIMIT ? * 2)',
+        'SELECT (count(*) - count(responseTime) > ?) AS isDown FROM (SELECT * FROM history WHERE endpoint=? ORDER BY startedOn DESC LIMIT ? * 2)',
         (requiredCount, host['id'], requiredCount)) \
         .fetchall()[0]['isDown']
     if isDown == 1:
